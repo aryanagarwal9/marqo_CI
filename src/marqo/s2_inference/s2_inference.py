@@ -24,10 +24,11 @@ def vectorise(model_name: str, content: Union[str, List[str]], device: str = get
         List[List[float]]: _description_
     """
     # TODO map by (model_name, device) instead of model_name
-    if model_name not in available_models:
-        available_models[model_name] = _load_model(model_name, device=device)
+    key = (model_name, device)
+    if key not in available_models:
+        available_models[key] = _load_model(model_name, device=device)
         logger.info(f'loaded {model_name} on device {device} with normalization={normalize_embeddings}')
-    vectorised = available_models[model_name].encode(content, normalize=normalize_embeddings, **kwargs)
+    vectorised = available_models[key].encode(content, normalize=normalize_embeddings, **kwargs)
     return _convert_vectorized_output(vectorised)
 
 

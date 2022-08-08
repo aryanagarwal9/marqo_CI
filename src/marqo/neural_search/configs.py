@@ -18,7 +18,7 @@ def get_default_neural_index_settings():
     }
 
 def get_max_processes():
-    return {'max_processes_cpu' :6, 'max_processes_gpu': 4}
+    return {'max_processes_cpu' :6, 'max_processes_gpu': 8}
 
 def get_threads_per_process():
     total_cpu = max(1, mp.cpu_count() - 2)

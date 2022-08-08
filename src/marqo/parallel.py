@@ -97,7 +97,7 @@ def get_device_ids(n_processes: int, device: str):
 
     raise ValueError(f"expected on of 'cpu', 'cuda' or 'cuda:#' but received {device}")
 
-
+import copy
 class IndexChunk:
 
     """wrapper to pass through dopcuments to be indexed to multiprocessing
@@ -106,7 +106,7 @@ class IndexChunk:
     def __init__(self, config=None, index_name: str = None, docs: List[Dict] = [], 
                         auto_refresh: bool = False, batch_size: int = 50, device: str = None, process_id: int = 0):
 
-        self.config = config
+        self.config = copy.deepcopy(config)
         self.index_name = index_name
         self.docs = docs
         self.auto_refresh = auto_refresh
@@ -115,9 +115,13 @@ class IndexChunk:
         self.n_chunks = max(1, self.n_docs // self.n_batch)
         self.device = device
         self.process_id = process_id
-    
+        
+        self.config.indexing_device = device
+        print(device)
     def process(self):  
 
+        from marqo.neural_search import neural_search
+        
         # hf tokenizers setting
         os.environ['TOKENIZERS_PARALLELISM'] = 'false'
 
@@ -192,7 +196,7 @@ def add_documents_mp(config=None, index_name=None, docs=None,
 
     # get the device ids for each process based on the process count and available devices
     device_ids = get_device_ids(n_processes, config.indexing_device)
-    
+    print(device_ids)
     start  = time.time()
 
     # we create the index if it does not exist

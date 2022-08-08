@@ -204,6 +204,7 @@ def add_documents(config: Config, index_name: str, docs: List[dict], auto_refres
             field_content = copied[field]
 
             if isinstance(field_content, str):
+                
                 text_chunks = text_processor.split_text(field_content)
                 vector_chunks = s2_inference.vectorise(index_info.model_name, text_chunks, 
                                                     config.indexing_device, index_info.neural_settings['index_defaults']['normalize_embeddings'],
