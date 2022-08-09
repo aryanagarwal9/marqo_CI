@@ -1,6 +1,12 @@
 #!/bin/bash
 export PYTHONPATH="${PYTHONPATH}:/app/src/"
 
+
+
+echo before dockerd
+dockerd
+echo after dockerd
+
 # Start opensearch in the background
 if [[ $(docker ps -a | grep 9600 | grep -v Exited) ]]; then
     echo "opennsearch is running"
