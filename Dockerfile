@@ -44,5 +44,8 @@ RUN apt-get update && apt-get install -y runsc
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 COPY . /app
+RUN apt-get install build-essential
+RUN gcc -static -c /app/processes/trivial_process.c -o /app/processes/trivial_process
+RUN chmod +x /app/processes/trivial_process
 RUN chmod +x ./run_marqo.sh
 CMD ./run_marqo.sh
