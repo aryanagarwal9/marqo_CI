@@ -12,8 +12,9 @@ logger = get_logger(__name__)
 available_models = dict()
 MODEL_PROPERTIES = load_model_properties()
 
+
 def vectorise(model_name: str, content: Union[str, List[str]], device: str = get_default_device(), 
-                                    normalize_embeddings: bool = get_default_normalization(), **kwargs) -> List[List[float]]:
+              normalize_embeddings: bool = get_default_normalization(), **kwargs) -> List[List[float]]:
     """vectorizes the content by model name
 
     Args:

@@ -150,7 +150,7 @@ def get_stats(config: Config, index_name: str):
     }
 
 
-def add_documents(config: Config, index_name: str, docs: List[dict], auto_refresh):
+def add_documents(config: Config, index_name: str, docs: List[dict], auto_refresh, device=None):
     """
     FIXME:
         - Atomicity issue: we index parent doc OK, but run into error indexing chunks.
@@ -205,9 +205,11 @@ def add_documents(config: Config, index_name: str, docs: List[dict], auto_refres
 
             if isinstance(field_content, str):
                 text_chunks = text_processor.split_text(field_content)
-                vector_chunks = s2_inference.vectorise(index_info.model_name, text_chunks, 
-                                                    config.indexing_device, index_info.neural_settings['index_defaults']['normalize_embeddings'],
-                                                    infer=index_info.neural_settings[NsField.index_defaults][NsField.treat_urls_and_pointers_as_images])
+                selected_device = config.indexing_device if device is None else device
+                vector_chunks = s2_inference.vectorise(
+                    model_name=index_info.model_name, content=text_chunks, device=selected_device,
+                    normalize_embeddings=index_info.neural_settings['index_defaults']['normalize_embeddings'],
+                    infer=index_info.neural_settings[NsField.index_defaults][NsField.treat_urls_and_pointers_as_images])
                 assert len(vector_chunks) == len(text_chunks)
                 for text_chunk, vector_chunk in zip(text_chunks, vector_chunks):
                     chunk_id = str(uuid.uuid4())
@@ -240,7 +242,10 @@ def add_documents(config: Config, index_name: str, docs: List[dict], auto_refres
         item_fields_to_remove = ['_index', '_primary_term', '_seq_no', '_shards', '_version']
         for item in copied_res["items"]:
             for to_remove in item_fields_to_remove:
-                del item["index"][to_remove]
+                try:
+                    del item["index"][to_remove]
+                except KeyError:
+                    pass
             new_items.append(item["index"])
         copied_res["processingTimeMs"] = took
         copied_res["index_name"] = index_name
@@ -285,7 +290,8 @@ def delete_documents(config: Config, index_name: str, doc_ids: List[str], auto_r
 
 def search(config: Config, index_name: str, text: str, result_count: int = 3, highlights=True, return_doc_ids=False,
            search_method: Union[str, SearchMethod, None] = SearchMethod.NEURAL,
-           searchable_attributes: Iterable[str] = None, verbose=0, num_highlights=3) -> Dict:
+           searchable_attributes: Iterable[str] = None, verbose=0, num_highlights=3,
+           device=None) -> Dict:
     """The root search method. Calls the specific search method
 
     Validation should go here. Validations include:
@@ -335,7 +341,7 @@ def search(config: Config, index_name: str, text: str, result_count: int = 3, hi
         search_result = _vector_text_search(
             config=config, index_name=index_name, text=text, result_count=result_count,
             return_doc_ids=return_doc_ids, searchable_attributes=searchable_attributes,
-            number_of_highlights=num_highlights
+            number_of_highlights=num_highlights, device=device
         )
     elif search_method.upper() == SearchMethod.LEXICAL:
         search_result = _lexical_search(
@@ -431,7 +437,7 @@ def _vector_text_search(
         config: Config, index_name: str, text: str, result_count: int = 5, return_doc_ids=False,
         searchable_attributes: Iterable[str] = None, number_of_highlights=3,
         verbose=0, raise_on_searchable_attribs=False, hide_vectors=True, k=500,
-        simplified_format=True
+        simplified_format=True, device=None
 ):
     """
     Args:
@@ -475,9 +481,10 @@ def _vector_text_search(
         index_info = get_index_info(config=config, index_name=index_name)
     except KeyError as e:
         raise MarqoError(message="Tried to search a non-existent index: {}".format(index_name))
+    selected_device = config.indexing_device if device is None else device
     vectorised_text = s2_inference.vectorise(
         model_name=index_info.model_name, content=text_processor.split_text(text)[0], 
-        device=config.search_device,
+        device=selected_device,
         normalize_embeddings=index_info.neural_settings['index_defaults']['normalize_embeddings'])[0]
 
     body = []
@@ -641,14 +648,6 @@ def delete_index(config: Config, index_name):
     if index_name in get_cache():
         del get_cache()[index_name]
     return res
-
-
-def _select_vectoriser(model_name: Union[str, MlModel]) -> Callable[[str], List[List[float]]]:
-    """selects the vectorisation function based on the model's name"""
-    if model_name == MlModel.bert or model_name == MlModel.clip:
-        return functools.partial(s2_inference.vectorise, model_name)
-    else:
-        raise ValueError("neural_search: Unknown model selected: {}".format(model_name))
 
 
 def _clean_doc(doc: dict, doc_id=None) -> dict:

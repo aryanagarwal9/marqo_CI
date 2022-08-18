@@ -5,6 +5,7 @@ from marqo.errors import MarqoApiError, MarqoError
 from marqo.neural_search import neural_search, constants, index_meta_cache
 import copy
 from tests.marqo_test import MarqoTestCase
+from unittest import mock
 
 
 class TestVectorSearch(MarqoTestCase):
@@ -287,4 +288,25 @@ class TestVectorSearch(MarqoTestCase):
         assert len(lexical_no_highlights["hits"]) == 2
         for hit in lexical_no_highlights["hits"]:
             assert "_highlights" not in hit
+
+    def test_set_device(self):
+        """calling search with a specified device overrides device defined in config"""
+        mock_config = copy.deepcopy(self.config)
+        mock_config.search_device = "cpu"
+        neural_search.create_vector_index(config=self.config, index_name=self.index_name_1)
+
+        mock_vectorise = mock.MagicMock()
+        mock_vectorise.return_value = [[0, 0, 0, 0]]
+
+        @mock.patch("marqo.s2_inference.s2_inference.vectorise", mock_vectorise)
+        def run():
+            neural_search.search(
+                config=self.config, index_name=self.index_name_1, text="some text",
+                search_method=SearchMethod.NEURAL, highlights=True, device="cuda:1")
+            return True
+        assert run()
+        assert mock_config.search_device == "cpu"
+        args, kwargs = mock_vectorise.call_args
+        assert kwargs["device"] == "cuda:1"
+
 
