@@ -1,6 +1,7 @@
 import os
 import time
 from typing import List, Dict
+import copy
 
 import torch
 import numpy as np
@@ -97,10 +98,9 @@ def get_device_ids(n_processes: int, device: str):
 
     raise ValueError(f"expected on of 'cpu', 'cuda' or 'cuda:#' but received {device}")
 
-import copy
 class IndexChunk:
 
-    """wrapper to pass through dopcuments to be indexed to multiprocessing
+    """wrapper to pass through documents to be indexed to multiprocessing
     """
 
     def __init__(self, config=None, index_name: str = None, docs: List[Dict] = [], 
@@ -117,11 +117,9 @@ class IndexChunk:
         self.process_id = process_id
         
         self.config.indexing_device = device
-        print(device)
+        
     def process(self):  
 
-        from marqo.neural_search import neural_search
-        
         # hf tokenizers setting
         os.environ['TOKENIZERS_PARALLELISM'] = 'false'
 
