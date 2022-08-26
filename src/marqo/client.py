@@ -103,17 +103,14 @@ class Client:
         return ix
 
     def index(self, index_name: str) -> Index:
-        """Create a local reference to an index identified by UID, without doing an HTTP call.
-        Calling this method doesn't create an index in the marqo instance, but grants access to all the other methods in the Index class.
+        """Create a local reference to an index identified by an index_name, without doing an HTTP call.
+        Calling this method doesn't create an index in the marqo instance, but grants access to all
+        the other methods in the Index class.
 
-        Parameters
-        ----------
-        index_name:
-            UID of the index.
+        Args:
+            index_name: name of the index
 
-        Returns
-        -------
-        index:
+        Returns:
             An Index instance.
         """
         if index_name is not None:
