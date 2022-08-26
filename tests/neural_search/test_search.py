@@ -287,7 +287,36 @@ class TestVectorSearch(MarqoTestCase):
         for hit in lexical_no_highlights["hits"]:
             assert "_highlights" not in hit
 
+    def test_search_lexical_int_field(self):
+        """doesn't error out if there is a random int field"""
+        neural_search.add_documents(
+            config=self.config, index_name=self.index_name_1, docs=[
+                {"abc": "some text", "other field": "baaadd", "_id": "5678", "my_int": 144},
+                {"abc": "some text", "other field": "Close match hehehe", "_id": "1234", "my_int": 88},
+            ], auto_refresh=True)
+
+        s_res = neural_search.search(
+            config=self.config, index_name=self.index_name_1, text="88",
+            search_method=SearchMethod.LEXICAL)
+        pprint.pprint(s_res)
+        assert len(s_res["hits"]) > 0
+
+    def test_search_vector_int_field(self):
+        """doesn't error out if there is a random int field"""
+        neural_search.add_documents(
+            config=self.config, index_name=self.index_name_1, docs=[
+                {"abc": "some text", "other field": "baaadd", "_id": "5678", "my_int": 144},
+                {"abc": "some text", "other field": "Close match hehehe", "_id": "1234", "my_int": 88},
+            ], auto_refresh=True)
+
+        s_res = neural_search.search(
+            config=self.config, index_name=self.index_name_1, text="88",
+            search_method=SearchMethod.NEURAL)
+        pprint.pprint(s_res)
+        assert len(s_res["hits"]) > 0
+
     def test_filtering(self):
+        # TODO: test if mapping has been updated
         neural_search.add_documents(
             config=self.config, index_name=self.index_name_1, docs=[
                 {"abc": "some text", "other field": "baaadd", "_id": "5678", "my_int": "b"},
@@ -296,10 +325,11 @@ class TestVectorSearch(MarqoTestCase):
 
         res = neural_search.search(
             config=self.config, index_name=self.index_name_1, text="some text", result_count=3,
-            filter="__field_name:my_int", verbose=1
+            filter="my_int:2", verbose=1
         )
         print("res")
         pprint.pprint(res)
+
 
     def test_filtering_lexical(self):
         """TODO: this"""

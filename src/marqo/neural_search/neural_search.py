@@ -42,7 +42,7 @@ import asyncio
 from typing import List, Optional, Union, Callable, Iterable, Sequence, Dict
 from PIL import Image
 import requests
-from marqo.neural_search.enums import MediaType, MlModel, NeuralField, SearchMethod
+from marqo.neural_search.enums import MediaType, MlModel, NeuralField, SearchMethod, OpenSearchDataType
 from marqo.neural_search.enums import NeuralSettingsField as NsField
 from marqo.neural_search import utils, backend, validation, configs
 from marqo.s2_inference.processing import text as text_processor
@@ -63,6 +63,7 @@ from marqo.config import Config
 # TODO add an errors.py 
 from marqo import errors
 import threading
+import numbers
 
 from marqo.neural_search.neural_search_logging import get_logger
 logger = get_logger(__name__)
@@ -174,6 +175,21 @@ def get_stats(config: Config, index_name: str):
     }
 
 
+def _infer_opensearch_data_type(
+        sample_field_content: typing.Any) -> Union[OpenSearchDataType, None]:
+    """
+    Raises:
+        Exception if sample_field_content list or dict
+    """
+    if isinstance(sample_field_content, dict):
+        raise errors.InvalidArgError("Field content can't be objects or lists!")
+    elif isinstance(sample_field_content, List):
+        raise errors.InvalidArgError("Field content can't be objects or lists!")
+    elif isinstance(sample_field_content, str):
+        return OpenSearchDataType.text
+    else:
+        return None
+
 def add_documents(config: Config, index_name: str, docs: List[dict], auto_refresh):
     """
     """
@@ -218,7 +234,7 @@ def add_documents(config: Config, index_name: str, docs: List[dict], auto_refres
         for field in copied:
 
             if field not in existing_fields:
-                new_fields.add(field)
+                new_fields.add((field, _infer_opensearch_data_type(copied[field])))
 
             field_content = copied[field]
 
@@ -257,7 +273,7 @@ def add_documents(config: Config, index_name: str, docs: List[dict], auto_refres
                         utils.generate_vector_name(field): vector_chunk,
                         NeuralField.field_content: text_chunk,
                         NeuralField.field_name: field,
-                        "my_int": "b"
+                        **doc.copy()
                     })
         copied[NeuralField.chunks] = chunks
         bulk_parent_dicts.append(indexing_instructions)
@@ -613,7 +629,6 @@ def _vector_text_search(
         # This probably means the index is emtpy
         return {"hits": []}
     response = HttpRequests(config).get(path=F"{index_name}/_msearch", body=utils.dicts_to_jsonl(body))
-
     responses = [r['hits']['hits'] for r in response["responses"]]
     gathered_docs = dict()
 
