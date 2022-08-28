@@ -8,7 +8,12 @@
 # export BUILDKIT_PROGRESS=plain; docker rm -f marqo; DOCKER_BUILDKIT=1 docker build --no-cache . -t marqo_docker_0 && docker run --name marqo --privileged -p 8000:8000 marqo_docker_0
 
 #FROM mreimbold/debian10-dind:latest
+ARG CUDA_VERSION=11.4.2
+FROM nvcr.io/nvidia/cuda:${CUDA_VERSION}-cudnn8-runtime-ubuntu20.04 as cuda_image
+CMD nvidia-smi
+
 FROM cruizba/ubuntu-dind
+#COPY --from=cuda_image . .
 WORKDIR /app
 RUN apt-get update
 RUN apt-get install ca-certificates curl  gnupg lsof lsb-release jq -y
@@ -19,6 +24,8 @@ RUN apt-get update
 #RUN apt-get install python3-distutils-extra -y # python3-distutils
 RUN apt-get install python3.8-distutils -y # python3-distutils
 RUN apt-get  install python3.8 python3-pip -y # pip is 276 MB!
+RUN pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu113 --upgrade
+RUN pip install onnxruntime-gpu
 # TODO: up the RAM
 
 COPY requirements.txt requirements.txt

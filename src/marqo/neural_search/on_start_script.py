@@ -1,5 +1,6 @@
 # use this function to pre-load when marqo service starts
 from marqo.neural_search.neural_search_logging import get_logger
+import time
 
 def on_start():
     
@@ -79,22 +80,39 @@ class ModelsForCacheing:
 
         self.models = (
             'hf/all_datasets_v4_MiniLM-L6',
-            # 'onnx/all_datasets_v4_MiniLM-L6',
-            # "ViT-B/16",
+            'onnx/all_datasets_v4_MiniLM-L6',
+            "ViT-B/32",
         )
         # TBD to include cross-encoder/ms-marco-TinyBERT-L-2-v2
 
-        self.default_devices = ['cpu']
+        self.default_devices = ['cpu', 'cuda']
 
         self.logger.info(f"pre-loading {self.models} onto devices={self.default_devices}")
 
     def run(self):
         from marqo.s2_inference.s2_inference import vectorise
         test_string = 'this is a test string'
-
+        N = 10
+        messages = []
         for model in self.models:
             for device in self.default_devices:
+                
+                # warm it up
                 _ = vectorise(model, test_string, device=device)
+                t = 0
+                for n in range(N):
+    
+                    t0 = time.time()
+                    _ = vectorise(model, test_string, device=device)                
+                    t1 = time.time()
+                    t += (t1 - t0)
+                message = f"{(t)/float((N))} for {model} and {device}"
+                messages.append(message)
+                self.logger.info(f"{model} {device} run succesfully!")
+
+
+        for message in messages:
+            self.logger.info(message)
         self.logger.info("completed loading models")
 
 
