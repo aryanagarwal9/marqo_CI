@@ -3,8 +3,7 @@ from marqo.neural_search.neural_search_logging import get_logger
 import time
 
 def on_start():
-    
-    
+        
     to_run_on_start = (DownloadStartText(), 
                         CUDAAvailable(), 
                         ModelsForCacheing(), 
@@ -17,7 +16,6 @@ def on_start():
     for thing_to_start in to_run_on_start:
         thing_to_start.run()
 
-    
 class CUDAAvailable:
 
     """checks the status of cuda
@@ -30,11 +28,11 @@ class CUDAAvailable:
 
     def run(self):
         import torch
+
         def id_to_device(id):
             if id < 0:
                 return ['cpu']
             return [torch.cuda.get_device_name(id)]
-
         
         device_count = 0 if not torch.cuda.is_available() else torch.cuda.device_count()
 
@@ -44,10 +42,8 @@ class CUDAAvailable:
         
         device_names = []
         for device_id in device_ids:
-            device_names += id_to_device(device_id)
+            device_names.append( {'id':device_id, 'name':id_to_device(device_id)})
         self.logger.info(f"found devices {device_names}")
-
-
 
 class NLTK: 
 
@@ -77,7 +73,8 @@ class ModelsForCacheing:
     logger = get_logger('ModelsForStartup')
 
     def __init__(self):
-
+        import torch
+      
         self.models = (
             'hf/all_datasets_v4_MiniLM-L6',
             'onnx/all_datasets_v4_MiniLM-L6',
@@ -85,12 +82,13 @@ class ModelsForCacheing:
         )
         # TBD to include cross-encoder/ms-marco-TinyBERT-L-2-v2
 
-        self.default_devices = ['cpu', 'cuda']
+        self.default_devices = ['cpu'] if not torch.cuda.is_available() else ['cpu', 'cuda']
 
         self.logger.info(f"pre-loading {self.models} onto devices={self.default_devices}")
 
     def run(self):
         from marqo.s2_inference.s2_inference import vectorise
+       
         test_string = 'this is a test string'
         N = 10
         messages = []
@@ -109,7 +107,6 @@ class ModelsForCacheing:
                 message = f"{(t)/float((N))} for {model} and {device}"
                 messages.append(message)
                 self.logger.info(f"{model} {device} run succesfully!")
-
 
         for message in messages:
             self.logger.info(message)
@@ -139,9 +136,7 @@ class DownloadFinishText:
         print("###########################################################")
         print('\n')
 
-
 class MarqoPhrase:
-
 
     def run(self):
 
