@@ -2,6 +2,11 @@
 #source /opt/bash-utils/logger.sh
 
 export PYTHONPATH="${PYTHONPATH}:/app/src/"
+#unlink usr/local/cuda/cuda-11.4
+# this is required for onnx to find cuda
+export CUDA_HOME=/usr/local/cuda/
+export LD_LIBRARY_PATH=${CUDA_HOME}/lib64
+export PATH=${CUDA_HOME}/bin:${PATH}
 
 # Wait for it to run:
 # https://stackoverflow.com/questions/43978837/how-to-check-if-docker-daemon-is-running

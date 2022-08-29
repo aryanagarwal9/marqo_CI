@@ -9,11 +9,13 @@
 
 #FROM mreimbold/debian10-dind:latest
 ARG CUDA_VERSION=11.4.2
-FROM nvcr.io/nvidia/cuda:${CUDA_VERSION}-cudnn8-runtime-ubuntu20.04 as cuda_image
+#FROM nvcr.io/nvidia/cuda:${CUDA_VERSION}-cudnn8-runtime-ubuntu20.04 as cuda_image
+FROM nvidia/cuda:${CUDA_VERSION}-cudnn8-runtime-ubuntu20.04 as cuda_image
 CMD nvidia-smi
 
 FROM cruizba/ubuntu-dind
-#COPY --from=cuda_image . .
+# this is required for onnx to find cuda
+COPY --from=cuda_image /usr/local/cuda/ /usr/local/cuda/
 WORKDIR /app
 RUN apt-get update
 RUN apt-get install ca-certificates curl  gnupg lsof lsb-release jq -y
