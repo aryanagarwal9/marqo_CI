@@ -24,24 +24,24 @@ function wait_for_process () {
     return 0
 }
 
-echo "Starting supervisor"
-/usr/bin/supervisord -n >> /dev/null 2>&1 &
-
-echo starting dockerd command
-dockerd &
-echo dockerd command complete
-
-echo "Waiting for processes to be running"
-processes=(dockerd)
-for process in "${processes[@]}"; do
-    wait_for_process "$process"
-    if [ $? -ne 0 ]; then
-        echo "$process is not running after max time"
-        exit 1
-    else
-        echo "$process is running"
-    fi
-done
+#echo "Starting supervisor"
+#/usr/bin/supervisord -n >> /dev/null 2>&1 &
+#
+#echo starting dockerd command
+#dockerd &
+#echo dockerd command complete
+#
+#echo "Waiting for processes to be running"
+#processes=(dockerd)
+#for process in "${processes[@]}"; do
+#    wait_for_process "$process"
+#    if [ $? -ne 0 ]; then
+#        echo "$process is not running after max time"
+#        exit 1
+#    else
+#        echo "$process is running"
+#    fi
+#done
 OPENSEARCH_IS_INTERNAL=False
 # Start opensearch in the background
 if [[ ! $OPENSEARCH_URL ]]; then
