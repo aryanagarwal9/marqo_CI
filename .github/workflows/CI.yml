@@ -71,42 +71,66 @@ jobs:
 #           tox
           
           
-  Test-Github-Marqo:
-    name: Test github marqo  
+#   Test-Github-Marqo:
+#     name: Test github marqo  
+#     runs-on: ubuntu-latest
+#     steps:
+
+#       - uses: actions/checkout@v3
+
+#       - name: Set up Docker Buildx
+#         uses: docker/setup-buildx-action@v2
+        
+#       - name: Run marqo-os
+#         run: |
+#            docker run --name marqo-os -id -p 9200:9200 -p 9600:9600 -e "discovery.type=single-node" marqoai/marqo-os:0.0.2
+
+#       - name: Build marqo
+#         uses: docker/build-push-action@v3
+#         with:
+#           context: .
+#           builder: ${{ steps.buildx.outputs.name }}
+#           push: false
+#           load: true
+#           tags: marqo_docker_0
+#           cache-from: type=gha
+#           cache-to: type=gha,mode=max
+#           platforms: linux/amd64
+          
+#       - name: Run marqo
+#         run: |
+#           # DOCKER_BUILDKIT=1 docker build . -t marqo_docker_0 
+#           docker run --name marqo --privileged -p 8882:8882 --add-host host.docker.internal:host-gateway -e "OPENSEARCH_URL=https://localhost:9200" marqo_docker_0 &
+#           until [[ $(curl -v --silent --insecure http://localhost:8882 2>&1 | grep marqo) ]]; do
+#           sleep 0.1;
+#           done;
+#           docker ps -a
+          
+#       - name: Run unit tests
+#         run: |
+#           pip install tox
+#           tox
+          
+
+  Integration-Test-Github-Marqo:
+    name: Integration Test github marqo  
     runs-on: ubuntu-latest
     steps:
 
-      - uses: actions/checkout@v3
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-        
-      - name: Run marqo-os
-        run: |
-           docker run --name marqo-os -id -p 9200:9200 -p 9600:9600 -e "discovery.type=single-node" marqoai/marqo-os:0.0.2
-
-      - name: Build marqo
-        uses: docker/build-push-action@v3
+          
+      - uses: actions/checkout@v3
         with:
-          context: .
-          builder: ${{ steps.buildx.outputs.name }}
-          push: false
-          load: true
-          tags: marqo_docker_0
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          platforms: linux/amd64
+          repository: marqo-ai/marqo-api-tests
           
-      - name: Run marqo
-        run: |
-          # DOCKER_BUILDKIT=1 docker build . -t marqo_docker_0 
-          docker run --name marqo --privileged -p 8882:8882 --add-host host.docker.internal:host-gateway -e "OPENSEARCH_URL=https://localhost:9200" marqo_docker_0 &
-          until [[ $(curl -v --silent --insecure http://localhost:8882 2>&1 | grep marqo) ]]; do
-          sleep 0.1;
-          done;
-          docker ps -a
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.8"
+          cache: "pip"
           
-      - name: Run unit tests
+      - name: Run integration tests
         run: |
           pip install tox
           tox
