@@ -24,13 +24,13 @@ jobs:
         python-version: "3.8"
         cache: "pip"
         
-    - name: Get changed directories
+    - name: Get Changed Directories
       id: changed-dir
       uses: tj-actions/changed-files@v29.0.1
       with:
         dir_names: true
       
-    - name: Lint changed directories with flake8
+    - name: Lint Changed Directories with flake8
       run: |
         pip install flake8 
         for dir in ${{ steps.changed-dir.outputs.all_changed_files }}; do
@@ -110,14 +110,13 @@ jobs:
 #         run: |
 #           pip install tox
 #           tox
-         #try 
 
-  Integration-Test-Github-Marqo:
-    name: Integration Test github marqo  
+
+  Test-Marqo:
+    name: Test Marqo  
     runs-on: ubuntu-latest
     steps:
        
-          
       - uses: actions/checkout@v3
         with:
           repository: marqo-ai/marqo
@@ -128,8 +127,8 @@ jobs:
           python-version: "3.8"
           cache: "pip"
           
-      - name: Install dependencies
-        run: pip install -r requirements.txt 
+#       - name: Install Dependencies
+#         run: pip install -r requirements.txt 
         
       - uses: actions/checkout@v3
         with:
@@ -138,14 +137,24 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
           
-      - name: Set up environment
+      - name: Set up Environment
         run: |
+          # Set up conf file
           echo 'export MARQO_API_TESTS_ROOT="/home/runner/work/marqo_CI/marqo_CI"' >> conf
-          echo '"${{ secrets.S2SEARCH_URL }}"'
           echo 'export S2SEARCH_URL="${{ secrets.S2SEARCH_URL }}"' >> conf
+          # Run docker without sudo
           sudo gpasswd -a $USER docker
           sudo service docker restart
 
-      - name: Run integration tests
+      - name: Run Unit Tests
         run: tox -e py3-local_os_unit_tests
+        
+      - name: Run Integration Tests - local_os
+        run: tox -e py3-local_os
+        
+      - name: Run Integration Tests - dind_os
+        run: tox -e py3-dind_os
+        
+      - name: Run Integration Tests - s2search
+        run: tox -e py3-s2search
 
