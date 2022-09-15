@@ -147,5 +147,6 @@ jobs:
         run: |
           sudo gpasswd -a $USER docker
           sudo service docker restart
+          pip install tox
           tox -e py3-localos_unit_tests
 
