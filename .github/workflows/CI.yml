@@ -40,76 +40,6 @@ jobs:
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
           flake8 $dir --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --filename *.py
         done
-        
-      
-#   Test-Docker-Hub-Marqo:
-#     name: Test docker hub marqo  
-#     runs-on: ubuntu-latest
-#     steps:
-    
-#       - uses: actions/checkout@v3
-
-#       - name: Set up Docker Buildx
-#         uses: docker/setup-buildx-action@v2
-        
-#       - name: Run marqo-os
-#         run: |
-#            docker run --name marqo-os -id -p 9200:9200 -p 9600:9600 -e "discovery.type=single-node" marqoai/marqo-os:0.0.2
-
-#       - name: Pull and run marqo
-#         run: |
-#           # docker run --name marqo --privileged -p 8882:8882 --add-host host.docker.internal:host-gateway marqoai/marqo:0.0.3 &
-#           docker run --name marqo --privileged -p 8882:8882 --add-host host.docker.internal:host-gateway -e "OPENSEARCH_URL=https://localhost:9200" marqoai/marqo:0.0.3 &
-#           until [[ $(curl -v --silent --insecure http://localhost:8882 2>&1 | grep marqo) ]]; do
-#           sleep 0.1;
-#           done;
-#           docker ps -a
-          
-#       - name: Run unit tests
-#         run: |
-#           pip install tox
-#           tox
-          
-          
-#   Test-Github-Marqo:
-#     name: Test github marqo  
-#     runs-on: ubuntu-latest
-#     steps:
-
-#       - uses: actions/checkout@v3
-
-#       - name: Set up Docker Buildx
-#         uses: docker/setup-buildx-action@v2
-        
-#       - name: Run marqo-os
-#         run: |
-#            docker run --name marqo-os -id -p 9200:9200 -p 9600:9600 -e "discovery.type=single-node" marqoai/marqo-os:0.0.2
-
-#       - name: Build marqo
-#         uses: docker/build-push-action@v3
-#         with:
-#           context: .
-#           builder: ${{ steps.buildx.outputs.name }}
-#           push: false
-#           load: true
-#           tags: marqo_docker_0
-#           cache-from: type=gha
-#           cache-to: type=gha,mode=max
-#           platforms: linux/amd64
-          
-#       - name: Run marqo
-#         run: |
-#           # DOCKER_BUILDKIT=1 docker build . -t marqo_docker_0 
-#           docker run --name marqo --privileged -p 8882:8882 --add-host host.docker.internal:host-gateway -e "OPENSEARCH_URL=https://localhost:9200" marqo_docker_0 &
-#           until [[ $(curl -v --silent --insecure http://localhost:8882 2>&1 | grep marqo) ]]; do
-#           sleep 0.1;
-#           done;
-#           docker ps -a
-          
-#       - name: Run unit tests
-#         run: |
-#           pip install tox
-#           tox
 
 
   Test-Marqo:
@@ -145,6 +75,7 @@ jobs:
           # Run docker without sudo
           sudo gpasswd -a $USER docker
           sudo service docker restart
+          pip install tox #remove later
 
       - name: Run Unit Tests
         run: tox -e py3-local_os_unit_tests
