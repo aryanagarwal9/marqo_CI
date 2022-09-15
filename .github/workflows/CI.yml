@@ -127,7 +127,7 @@ jobs:
       - name: add conf file
         run: |
           echo 'export MARQO_API_TESTS_ROOT="/home/runner/work/marqo_CI/marqo_CI"' >> conf
-          echp 'export S2SEARCH_URL= $ {{ secrets.S2SEARCH_URL }}' >> conf
+          echo 'export S2SEARCH_URL= $ {{ secrets.S2SEARCH_URL }}' >> conf
           
       - name: Set up Python 3.8
         uses: actions/setup-python@v3
