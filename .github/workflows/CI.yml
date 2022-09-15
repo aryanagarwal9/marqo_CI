@@ -151,5 +151,5 @@ jobs:
           sudo gpasswd -a $USER docker
           sudo service docker restart
           pip install tox
-          tox -e py3-localos_unit_tests
+          tox -e py3-local_os_unit_tests
 
