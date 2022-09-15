@@ -75,7 +75,8 @@ jobs:
           # Run docker without sudo
           sudo gpasswd -a $USER docker
           sudo service docker restart
-         # pip install tox #remove later
+          # pip install tox #remove later
+          echo 'which python'
 
       - name: Run Unit Tests
         run: tox -e py3-local_os_unit_tests
