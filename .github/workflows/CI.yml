@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - CI-test #test
+      - CI-test
 
   #pull_request:
     #branches: [ "main" ]
