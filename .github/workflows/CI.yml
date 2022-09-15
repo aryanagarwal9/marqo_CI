@@ -57,8 +57,8 @@ jobs:
           python-version: "3.8"
           cache: "pip"
           
-      - name: Install Dependencies
-        run: pip install -r requirements.txt 
+#       - name: Install Dependencies
+#         run: pip install -r requirements.txt 
         
       - uses: actions/checkout@v3
         with:
@@ -76,7 +76,7 @@ jobs:
           sudo gpasswd -a $USER docker
           sudo service docker restart
           # pip install tox #remove later
-          echo 'which python'
+          which python
 
       - name: Run Unit Tests
         run: tox -e py3-local_os_unit_tests
