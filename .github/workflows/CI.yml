@@ -125,7 +125,7 @@ jobs:
           repository: marqo-ai/marqo-api-tests
        
       - name: add conf file
-        run: echo 'export MARQO_API_TESTS_ROOT="."' >> conf
+        run: echo 'export MARQO_API_TESTS_ROOT="/home/runner/work/marqo_CI/marqo_CI"' >> conf
           
       - name: Set up Python 3.8
         uses: actions/setup-python@v3
