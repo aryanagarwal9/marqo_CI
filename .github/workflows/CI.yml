@@ -139,5 +139,5 @@ jobs:
           sudo service docker restart
           ls
           pip install tox
-          tox -e py3-localos
+          tox
 
