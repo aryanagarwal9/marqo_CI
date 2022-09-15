@@ -116,18 +116,7 @@ jobs:
     name: Integration Test github marqo  
     runs-on: ubuntu-latest
     steps:
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-          
-      - uses: actions/checkout@v3
-        with:
-          repository: marqo-ai/marqo-api-tests
        
-      - name: add conf file
-        run: |
-          echo 'export MARQO_API_TESTS_ROOT="/home/runner/work/marqo_CI/marqo_CI"' >> conf
-          echo 'export S2SEARCH_URL= $ {{ secrets.S2SEARCH_URL }}' >> conf
           
       - name: Set up Python 3.8
         uses: actions/setup-python@v3
@@ -135,11 +124,26 @@ jobs:
           python-version: "3.8"
           cache: "pip"
           
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      
+      - uses: actions/checkout@v3
+          
+      - name: Install dependencies
+        run: pip install -r requirements.txt 
+          
+      - uses: actions/checkout@v3
+        with:
+          repository: marqo-ai/marqo-api-tests
+          
+      - name: add conf file
+        run: |
+          echo 'export MARQO_API_TESTS_ROOT="/home/runner/work/marqo_CI/marqo_CI"' >> conf
+          echo 'export S2SEARCH_URL= $ {{ secrets.S2SEARCH_URL }}' >> conf
+
       - name: Run integration tests
         run: |
           sudo gpasswd -a $USER docker
           sudo service docker restart
-          pip install tox
-          ls
           tox -e py3-localos_unit_tests
 
