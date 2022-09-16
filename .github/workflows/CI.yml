@@ -1,12 +1,9 @@
 name: CI
 
 on:
-  push:
+  pull_request:
     branches:
-      - mainline
-
-  #pull_request:
-    #branches: [ "main" ]
+      mainline
 
 permissions:
   contents: read
