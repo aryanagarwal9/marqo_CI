@@ -53,12 +53,12 @@ jobs:
     steps:
        
       - name: Checkout marqo repo
-      - uses: actions/checkout@v3
+        uses: actions/checkout@v3
         with:
           repository: marqo-ai/marqo
           
       - name: Set up Python 3.8
-      - uses: actions/setup-python@v3
+        uses: actions/setup-python@v3
         with:
           python-version: "3.8"
           cache: "pip"
@@ -67,12 +67,12 @@ jobs:
 #         run: pip install -r requirements.txt 
         
       - name: Checkout marqo-api-tests repo
-      - uses: actions/checkout@v3
+        uses: actions/checkout@v3
         with:
           repository: marqo-ai/marqo-api-tests
           
       - name: Set up Docker Buildx
-      - uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v2
           
       - name: Set up Environment
         run: |
