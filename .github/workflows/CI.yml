@@ -63,8 +63,8 @@ jobs:
           python-version: "3.8"
           cache: "pip"
           
-#       - name: Install Dependencies
-#         run: pip install -r requirements.txt 
+      - name: Install Dependencies
+        run: pip install -r requirements.txt 
         
       - name: Checkout marqo-api-tests repo
         uses: actions/checkout@v3
@@ -82,10 +82,9 @@ jobs:
           # Run docker without sudo
           sudo gpasswd -a $USER docker
           sudo service docker restart
-          echo $GITHUB_WORKSPACE
           
-      - name: Run Unit Tests
-        run: tox -e py3-local_os_unit_tests
+#       - name: Run Unit Tests
+#         run: tox -e py3-local_os_unit_tests
         
       - name: Run Integration Tests - local_os
         run: tox -e py3-local_os
