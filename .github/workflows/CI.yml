@@ -82,7 +82,7 @@ jobs:
           # Run docker without sudo
           sudo gpasswd -a $USER docker
           sudo service docker restart
-          echo $PYTHONPATH
+          echo $GITHUB_WORKSPACE
           
       - name: Run Unit Tests
         run: tox -e py3-local_os_unit_tests
