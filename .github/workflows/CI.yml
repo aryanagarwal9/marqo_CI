@@ -72,7 +72,7 @@ jobs:
           repository: marqo-ai/marqo-api-tests
           
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+      - uses: docker/setup-buildx-action@v2
           
       - name: Set up Environment
         run: |
