@@ -52,6 +52,7 @@ jobs:
     environment: production-test #change-name
     steps:
        
+      - name: Checkout marqo repo
       - uses: actions/checkout@v3
         with:
           repository: marqo-ai/marqo
@@ -62,9 +63,10 @@ jobs:
           python-version: "3.8"
           cache: "pip"
           
-      - name: Install Dependencies
-        run: pip install -r requirements.txt 
+#       - name: Install Dependencies
+#         run: pip install -r requirements.txt 
         
+      - name: Checkout marqo-api-tests repo
       - uses: actions/checkout@v3
         with:
           repository: marqo-ai/marqo-api-tests
@@ -80,6 +82,7 @@ jobs:
           # Run docker without sudo
           sudo gpasswd -a $USER docker
           sudo service docker restart
+          echo $PYTHONPATH
           
       - name: Run Unit Tests
         run: tox -e py3-local_os_unit_tests
