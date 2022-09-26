@@ -77,12 +77,12 @@ jobs:
           platforms: ${{ matrix.test-arch }}
           push: true
           tags: localhost:5000/marqo/multiarch:latest
-#           cache-from: type=registry
-#           cache-to: type=registry,mode=max
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
       - run: |
           #docker run --platform ${{ matrix.test-arch }} localhost:5000/marqo/multiarch:latest -v
           docker rm -f marqo;
-          docker run --platform ${{ matrix.test-arch }} --privileged -p 8882:8882 --add-host host.docker.internal:host-gateway --memory=7g localhost:8882/marqo/multiarch:latest
+          docker run --platform ${{ matrix.test-arch }} --privileged -p 8882:8882 --add-host host.docker.internal:host-gateway --memory=7g localhost:5000/marqo/multiarch:latest
           
       - name: Checkout marqo-api-tests repo
         uses: actions/checkout@v3
