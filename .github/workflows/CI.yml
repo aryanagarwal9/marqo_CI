@@ -50,12 +50,8 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: localhost:5000/marqo/multiarch:latest
-          cache-from: type=registry,mode=max
-          cache-to: type=registry,mode=max
-          
-#       - run: |
-#           docker rm -f marqo;
-#           docker run --platform ${{ matrix.test-arch }} --privileged -p 8882:8882 --add-host host.docker.internal:host-gateway --memory=7g localhost:5000/marqo/multiarch:latest
+#           cache-from: type=registry,mode=max
+#           cache-to: type=registry,mode=max
           
       - name: Checkout marqo-api-tests repo
         uses: actions/checkout@v3
