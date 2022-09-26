@@ -74,13 +74,13 @@ jobs:
           echo 'export S2SEARCH_URL="${{ secrets.S2SEARCH_URL }}"' >> conf
           
       - name: Run Unit Tests
-        run: tox -e py3-local_os_unit_tests_w_requirements -marqo_image_name localhost:5000/marqo/multiarch:latest
+        run: tox -e py3-local_os_unit_tests_w_requirements
         
       - name: Run Integration Tests - local_os
-        run: tox -e py3-local_os -marqo_image_name localhost:5000/marqo/multiarch:latest
+        run: tox -e py3-local_os 
         
       - name: Run Integration Tests - dind_os
-        run: tox -e py3-dind_os -marqo_image_name localhost:5000/marqo/multiarch:latest
+        run: tox -e py3-dind_os
         
       - name: Run Integration Tests - s2search
-        run: tox -e py3-s2search -marqo_image_name localhost:5000/marqo/multiarch:latest
+        run: tox -e py3-s2search
