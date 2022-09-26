@@ -18,7 +18,7 @@ jobs:
       registry:
         image: registry:2
         ports:
-          - 8882:8882
+          - 5000:5000
     strategy:
       matrix:
         test-arch: ["linux/amd64", "linux/arm64"]
@@ -76,9 +76,9 @@ jobs:
           context: .
           platforms: ${{ matrix.test-arch }}
           push: true
-          tags: localhost:8882/marqo/multiarch:latest
-#           cache-from: type=gha
-#           cache-to: type=gha,mode=max
+          tags: localhost:5000/marqo/multiarch:latest
+#           cache-from: type=registry
+#           cache-to: type=registry,mode=max
       - run: |
           #docker run --platform ${{ matrix.test-arch }} localhost:5000/marqo/multiarch:latest -v
           docker rm -f marqo;
