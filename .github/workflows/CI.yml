@@ -77,8 +77,8 @@ jobs:
           platforms: ${{ matrix.test-arch }}
           push: true
           tags: localhost:8882/marqo/multiarch:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+#           cache-from: type=gha
+#           cache-to: type=gha,mode=max
       - run: |
           #docker run --platform ${{ matrix.test-arch }} localhost:5000/marqo/multiarch:latest -v
           docker rm -f marqo;
