@@ -29,36 +29,12 @@ jobs:
        
       - name: Checkout marqo repo
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
           
       - name: Set up Python 3.8
         uses: actions/setup-python@v3
         with:
           python-version: "3.8"
           cache: "pip"
-          
-      - name: Install Dependencies
-        run: |
-          #pip install -r requirements.txt
-          pip install tox
-          pip install flake8
-        
-      - name: Get Changed Directories
-        id: changed-dir
-        uses: tj-actions/changed-files@v29.0.1
-        with:
-          dir_names: true
-      
-      - name: Lint Changed Directories with flake8
-        run: |
-          for dir in ${{ steps.changed-dir.outputs.all_changed_files }}; do
-            echo "$dir was changed"
-            # stop the build if there are Python syntax errors or undefined names
-            flake8 $dir --count --select=E9,F63,F7,F82 --show-source --statistics --filename *.py
-            # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-            flake8 $dir --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --filename *.py
-          done
         
       - name: Set up Docker Buildx
         id: buildx
@@ -70,39 +46,41 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
         
-      - name: Build and test
+      - name: Build Marqo Docker
         uses: docker/build-push-action@v2
         with:
           context: .
           platforms: ${{ matrix.test-arch }}
           push: true
           tags: localhost:5000/marqo/multiarch:latest
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
-      - run: |
-          #docker run --platform ${{ matrix.test-arch }} localhost:5000/marqo/multiarch:latest -v
-          docker rm -f marqo;
-          docker run --platform ${{ matrix.test-arch }} --privileged -p 8882:8882 --add-host host.docker.internal:host-gateway --memory=7g localhost:5000/marqo/multiarch:latest
+          cache-from: type=registry,mode=max
+          cache-to: type=registry,mode=max
+          
+#       - run: |
+#           docker rm -f marqo;
+#           docker run --platform ${{ matrix.test-arch }} --privileged -p 8882:8882 --add-host host.docker.internal:host-gateway --memory=7g localhost:5000/marqo/multiarch:latest
           
       - name: Checkout marqo-api-tests repo
         uses: actions/checkout@v3
         with:
-          repository: marqo-ai/marqo-api-tests
+          #repository: marqo-ai/marqo-api-tests
+          repository: aryanagarwal9/marqo-api-tests-CI
           
       - name: Set up Environment
         run: |
+          pip install tox
           # Set up conf file
           echo 'export MARQO_API_TESTS_ROOT="${{ github.workspace }}"' >> conf
           echo 'export S2SEARCH_URL="${{ secrets.S2SEARCH_URL }}"' >> conf
           
       - name: Run Unit Tests
-        run: tox -e py3-local_os_unit_tests_w_requirements
+        run: tox -e py3-local_os_unit_tests_w_requirements -marqo_image_name localhost:5000/marqo/multiarch:latest
         
       - name: Run Integration Tests - local_os
-        run: tox -e py3-local_os
+        run: tox -e py3-local_os -marqo_image_name localhost:5000/marqo/multiarch:latest
         
       - name: Run Integration Tests - dind_os
-        run: tox -e py3-dind_os
+        run: tox -e py3-dind_os -marqo_image_name localhost:5000/marqo/multiarch:latest
         
       - name: Run Integration Tests - s2search
-        run: tox -e py3-s2search
+        run: tox -e py3-s2search -marqo_image_name localhost:5000/marqo/multiarch:latest
